@@ -1,12 +1,13 @@
-//and model for user, add mongoose, bcrypt
 const { Schema, model } = require("mongoose");
 const bcrypt = require("bcrypt");
 
-const userSchema = new mongoose.Schema({
+
+const userSchema = new Schema(
+  {
     username: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
     },
     email: {
       type: String,
@@ -14,37 +15,15 @@ const userSchema = new mongoose.Schema({
       unique: true,
       match: [/.+@.+\..+/, "Must use a valid email address"],
     },
-  password:{
-  type:String,
-  required: true,
-  },
-    role: {
+    password: {
       type: String,
-      default: 'user'
+      required: true,
     },
-    // revisit this part
-    chats: [
-        {
-          type: Schema.Types.ObjectId,
-          ref: "chat",
-        },
-      ],
   
-    //   comments: [
-    //     {
-    //       type: Schema.Types.ObjectId,
-    //       ref: "user",
-    //     },
-    //   ],
-    },
-    {
-      toJSON: {
-        virtuals: true,
-      },
-      id: false,
-    }
-  );
-  // hash user password
+  },
+);
+
+// hash user password
 userSchema.pre("save", async function (next) {
   if (this.isNew || this.isModified("password")) {
     const saltRounds = 10;
@@ -58,14 +37,7 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.isCorrectPassword = async function (password) {
   return bcrypt.compare(password, this.password);
 };
-  
-  // creating virtual chatsCount
-  
-  userSchema.virtual("chatsCount").get(function () {
-    return this.chats.length;
-  });
-  
 
-const User = model("user", userSchema);
+const User = model("User", userSchema);
 
 module.exports = User;

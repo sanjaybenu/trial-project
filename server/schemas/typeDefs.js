@@ -1,40 +1,62 @@
-//Revisit queries and mutations
+//created typeDefs
 
+// typeDefs.js
+const { gql } = require('apollo-server-express');
 
-const { gql } = require('apollo-server');
 const typeDefs = gql`
   type User {
     _id: ID!
     username: String!
-    email: String!
-    posts: [Post!]!
-    comments: [Comment!]!
-    role: String
+    password: String! # Note: Password should never be exposed like this in a real app, this is just for demonstration purposes.
   }
+
   type Post {
     _id: ID!
-    title: String!
     content: String!
     user: User!
-    comments: [Comment!]!
+    responses: [Response!]!
   }
-  type Comment {
+
+  type Response {
     _id: ID!
-    text: String!
+    type: String!
+    content: String!
     user: User!
     post: Post!
   }
-  type Query {
-    getUsers: [User!]!
-    getUserById(userId: ID!): User!
-    getPosts: [Post!]!
-    getPostById(postId: ID!): Post!
-    getComments: [Comment!]!
-    getCommentById(commentId: ID!): Comment!
+
+
+  input PostInput {
+    content: String!
   }
+
+  input ResponseInput {
+    type: String!
+    content: String!
+    postId: ID!
+  }
+  type Auth {
+    token: ID!
+    user: User
+  }
+  type Query {
+    users:[User]
+    user(username: String!): User
+    posts:[Post]
+    post(_id: ID!):Post
+    # Add any required queries here, if needed.
+    # For example, getting a specific user, post, or response.
+  }
+ 
+
   type Mutation {
-    createUser(username: String!, email: String!, password: String!, role: String): User!
-    createPost(title: String!, content: String!, userId: ID!): Post!
-    createComment(text: String!, userId: ID!, postId: ID!): Comment!
+    register(username:String!,email:String!,password:String!): Auth
+    login(email:String!,password:String!): Auth
+    addPost(input: PostInput!): Post
+    addResponse(input: ResponseInput!): Response
+    updatePost(postId: ID!, content: String!): Post
+    updateResponse(responseId: ID!, content: String!): Response
   }
 `;
+
+module.exports = typeDefs;
